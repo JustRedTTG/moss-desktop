@@ -16,7 +16,8 @@ class InjectorMenu(pe.ChildContext):
         super().__init__(injector.parent_context)
 
     def pre_loop(self):
-        self.rect = pe.Rect(0, 0, self.width // 2, self.height - self.gui.ratios.bottom_bar_height - self.gui.ratios.main_menu_top_height)
+        self.rect = pe.Rect(0, 0, self.width // 2,
+                            self.height - self.gui.ratios.bottom_bar_height - self.gui.ratios.main_menu_top_height)
         self.rect.right = self.width + self.width * (1 - self.injector.t)
         self.rect.top += self.height * (1 - self.injector.t)
         self.rect.top += self.gui.ratios.main_menu_top_height
@@ -30,7 +31,7 @@ class InjectorMenu(pe.ChildContext):
 
     @lru_cache
     def get_text(self, text):
-        return pe.Text(text, self.defaults.MONO_FONT, self.gui.ratios.pixel(20), colors=self.defaults.TEXT_COLOR_H)
+        return pe.Text(text, self.defaults.MONO_FONT, self.gui.ratios.pixel(20), colors=self.defaults.TEXT_COLOR_T)
 
     def loop(self):
         from gui.rendering import render_button_using_text
@@ -44,10 +45,15 @@ class InjectorMenu(pe.ChildContext):
                     (self.rect.x, y, self.rect.width, button_height),
                     self.defaults.TRANSPARENT_COLOR, self.defaults.BUTTON_ACTIVE_COLOR,
                     text,
-                    action=getattr(extension, action_function),
+                    action=self.call_and_close,
+                    data=getattr(extension, action_function),
                     name=f'{extension_id}_{action_name}'
                 )
                 y += button_height
+
+    def call_and_close(self, function):
+        function()
+        self.injector.reset_hover()
 
     def post_loop(self):
         if self.rect.collidepoint(*pe.mouse.pos()):

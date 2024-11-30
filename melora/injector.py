@@ -75,6 +75,9 @@ class Injector(pe.ChildContext):
     def hover_hold(self):
         self.hover = True
 
+    def reset_hover(self):
+        self.hover_t = self.MIN_HOVER_T
+
     def run_pp_helpers(self):
         self()
 
